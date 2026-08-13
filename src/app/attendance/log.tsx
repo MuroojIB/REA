@@ -106,7 +106,7 @@ const renderItem = ({ item }: { item: AttendanceRecord }) => {
 const styles = StyleSheet.create({
     container: { 
         flex: 1, 
-        padding: spacing.md, 
+        padding: spacing.lg, 
         backgroundColor: colors.background 
     },
     headerContainer: {
