@@ -1,7 +1,7 @@
 /**
  * I used the standard Haversine formula to calculate the distance between two coordinates.
  * Since this is a standard mathematical formula, I adapted this implementation 
- * from from common open-source solutions (Reference: https://github.com/njj/haversine).
+ * from from common open-source solutions (Reference:https://www.movable-type.co.uk/scripts/latlong.html).
  * It takes the user's location and facility location, and returns the distance in meters.
  **/
 export function getDistanceInMeters(
@@ -25,5 +25,5 @@ export function getDistanceInMeters(
     
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return R * c;// Added Math.round to get a clean whole number
+  return R * c;// Rounded to get a clean whole number in meters
 }
