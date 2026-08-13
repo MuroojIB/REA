@@ -7,9 +7,14 @@ import { typography } from "../../../theme/typography";
 interface CheckInButtonProps {
     isDisabled?: boolean;
     onPress?: () => void;
+    label?: string; 
 }
 
-export const CheckInButton = ({ isDisabled = true, onPress }: CheckInButtonProps) => {
+export const CheckInButton = ({ 
+    isDisabled = true, 
+    onPress, 
+    label = "Check In" 
+}: CheckInButtonProps) => {
     return (
         <View style={styles.container}>
             <TouchableOpacity 
@@ -24,7 +29,7 @@ export const CheckInButton = ({ isDisabled = true, onPress }: CheckInButtonProps
                     styles.buttonText,
                     isDisabled ? styles.disabledText : styles.activeText
                 ]}>
-                    Check In
+                    {label}
                 </Text>
             </TouchableOpacity>
             
@@ -56,7 +61,8 @@ const styles = StyleSheet.create({
     },
     disabledButton: {
         backgroundColor: colors.surface,
-        borderWidth: 0,
+        borderWidth: 8,
+        borderColor: colors.border,
     },
     activeButton: {
         backgroundColor: colors.primary,

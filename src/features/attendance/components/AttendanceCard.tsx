@@ -7,27 +7,58 @@ import { typography } from "../../../theme/typography";
 
 interface AttendanceCardProps {
     distance?: number;
-    isInside?: boolean;
+    status?: string; // أضفنا حالة الموقع للتحكم بالمحتوى
+    errorMessage?: string; // رسالة الخطأ لو وجدت
 }
 
-export const AttendanceCard = ({ distance = 350, isInside = false }: AttendanceCardProps) => {
+export const AttendanceCard = ({ distance = 350, status = 'outside', errorMessage }: AttendanceCardProps) => {
+    const isInside = status === 'inside';
+    const hasError = status === 'unavailable' || status === 'permission-denied';
+
+    // تحديد محتوى النص والأيقونة بناءً على الحالة
+    const getCardContent = () => {
+        if (hasError) {
+            return {
+                title: "Location Unavailable",
+                desc: errorMessage || "Unable to get your location. Please check GPS settings.",
+                icon: "alert-circle-outline" as const,
+                bgStyle: styles.restrictedBg,
+                iconColor: "#ea4335"
+            };
+        }
+        if (isInside) {
+            return {
+                title: "Location Status",
+                desc: "You are within the allowed zone\nYou can check in",
+                icon: "location-outline" as const,
+                bgStyle: styles.allowedBg,
+                iconColor: colors.primary
+            };
+        }
+        return {
+            title: "Location Status",
+            desc: `You are ${distance}m away from the facility\nApproach zone to unlock check-in`,
+            icon: "location-sharp" as const,
+            bgStyle: styles.restrictedBg,
+            iconColor: "#5f6368"
+        };
+    };
+
+    const content = getCardContent();
+
     return (
         <View style={styles.card}>
             <View style={styles.locationRow}>
-                <View style={[styles.iconContainer, isInside ? styles.allowedBg : styles.restrictedBg]}>
+                <View style={[styles.iconContainer, content.bgStyle]}>
                     <Ionicons 
-                        name={isInside ? "location-outline" : "location-sharp"} 
+                        name={content.icon} 
                         size={24} 
-                        color={isInside ? colors.primary : "#5f6368"} 
+                        color={content.iconColor} 
                     />
                 </View>
                 <View style={styles.textContainer}>
-                    <Text style={styles.title}>Location Status</Text>
-                    <Text style={styles.description}>
-                        {isInside 
-                            ? "You are within the allowed zone\nYou can check in" 
-                            : `You are ${distance}m away from the facility\nApproach zone to unlock check-in`}
-                    </Text>
+                    <Text style={styles.title}>{content.title}</Text>
+                    <Text style={styles.description}>{content.desc}</Text>
                 </View>
             </View>
         </View>

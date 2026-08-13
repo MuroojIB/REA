@@ -4,7 +4,31 @@ import { colors } from "../../../theme/colors";
 import { spacing } from "../../../theme/spacing";
 import { typography } from "../../../theme/typography";
 
-export const AttendanceStatus = () => {
+interface AttendanceStatusProps {
+    attendanceState?: "not-checked-in" | "checked-in" | "checked-out";
+    checkInTime?: string;
+    checkOutTime?: string;
+}
+
+export const AttendanceStatus = ({ 
+    attendanceState = "not-checked-in", 
+    checkInTime = "", 
+    checkOutTime = "" 
+}: AttendanceStatusProps) => {
+    
+    const getStatusDetails = () => {
+        switch (attendanceState) {
+            case "checked-in":
+                return { text: `Checked in at ${checkInTime}`, dotColor: "#34a853" };
+            case "checked-out":
+                return { text: `Checked out at ${checkOutTime}`, dotColor: "#ea4335" };
+            default:
+                return { text: "Not checked in", dotColor: "#9aa0a6" };
+        }
+    };
+
+    const statusInfo = getStatusDetails();
+
     return (
         <View style={styles.timeContainer}>
             <Text style={styles.dateText}>THU, AUG 13, 2026</Text>
@@ -15,8 +39,8 @@ export const AttendanceStatus = () => {
             </View>
             
             <View style={styles.statusBadge}>
-                <View style={styles.dot} />
-                <Text style={styles.statusBadgeText}>Not checked in</Text>
+                <View style={[styles.dot, { backgroundColor: statusInfo.dotColor }]} />
+                <Text style={styles.statusBadgeText}>{statusInfo.text}</Text>
             </View>
         </View>
     );
@@ -69,7 +93,6 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#9aa0a6',
         marginRight: spacing.sm,
     },
     statusBadgeText: {
