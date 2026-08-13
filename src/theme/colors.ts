@@ -1,7 +1,8 @@
 export const colors = {
     primary: '#003A3D',
-    background: '#E7E8E8',
+    background: '#f6f8f8',
     surface: '#FFFFFF',
+    border: '#eaeded',
     text: {
         primary: '#1A1A1A',
         secondary: '#666666',
@@ -12,5 +13,4 @@ export const colors = {
         absent: '#FFEBEE',
         excused: '#E7E8E8',
     },
-    border: '#E0E0E0',
 };

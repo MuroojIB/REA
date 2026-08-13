@@ -19,24 +19,24 @@ export function useLocation() {
         try {
             setStatus("loading");
 
-            // Request location permission from the device
+            //Request location permission from the device
             const { status: permissionStatus } =
                 await Location.requestForegroundPermissionsAsync();
 
             if (permissionStatus !== "granted") {
                 setStatus("permission-denied");
-                setErrorMessage("يرجى السماح للتطبيق بالوصول إلى موقعك.");
+                setErrorMessage("Please allow the app to access your location");
                 return;
             }
 
-            // Get current device GPS coordinates
+            //Get current device GPS coordinates
             const currentLocation = await Location.getCurrentPositionAsync({
                 accuracy: Location.Accuracy.High,
             });
 
             const { latitude, longitude } = currentLocation.coords;
 
-            // Calculate distance between user and facility using Haversine formula
+            //Calculate distance between user and facility using Haversine formula
             const calculatedDistance = getDistanceInMeters(
                 latitude,
                 longitude,
@@ -46,7 +46,7 @@ export function useLocation() {
 
             setDistance(calculatedDistance);
 
-            // Check if user is within the allowed radius (e.g., 200m)
+            //Check if user is within the allowed radius
             if (calculatedDistance <= FACILITY.allowedRadiusMeters) {
                 setStatus("inside");
             } else {
@@ -54,7 +54,7 @@ export function useLocation() {
             }
         } catch (error) {
             setStatus("unavailable");
-            setErrorMessage("تعذر تحديد موقعك. تأكد أن خدمة الموقع تعمل.");
+            setErrorMessage("Unable to determine your location\nMake sure the location service is enabled");
         }
     };
 
