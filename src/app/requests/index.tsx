@@ -8,6 +8,7 @@ import { RequestStatus } from "../../features/requests/types";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { EmptyState } from "../../components/EmptyState";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function RequestsScreen() {
@@ -77,7 +78,15 @@ export default function RequestsScreen() {
                     )}
                     contentContainerStyle={styles.listContent}
                     ListEmptyComponent={
-                        <Text style={styles.emptyText}>No {selectedFilter !== "all" ? selectedFilter : ""} requests found.</Text>
+                        <EmptyState
+                            icon="document-text-outline"
+                            title="No Requests Found"
+                            description={
+                                selectedFilter === "all"
+                                    ? "You haven't submitted any excuse requests yet"
+                                    : `There are no ${selectedFilter} requests available`
+                            }
+                        />
                     }
                 />
 
