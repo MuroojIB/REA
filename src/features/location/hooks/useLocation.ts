@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import * as Location from "expo-location";
 import { FACILITY } from "../../../constants/facility";
 import { getDistanceInMeters } from "../utils/distance";
@@ -15,7 +15,26 @@ export function useLocation() {
     const [distance, setDistance] = useState<number | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const checkUserLocation = async () => {
+    const subscriptionRef = useRef<Location.LocationSubscription | null>(null);
+
+    const evaluateDistance = (latitude: number, longitude: number) => {
+        //Calculate distance between user and facility using Haversine formula
+        const calculatedDistance = getDistanceInMeters(
+            latitude,
+            longitude,
+            FACILITY.latitude,
+            FACILITY.longitude,
+        );
+
+        setDistance(calculatedDistance);
+
+        //Check if user is within the allowed radius
+        setStatus(
+            calculatedDistance <= FACILITY.allowedRadiusMeters ? "inside" : "outside"
+        );
+    };
+
+    const startWatching = async () => {
         try {
             setStatus("loading");
 
@@ -29,44 +48,39 @@ export function useLocation() {
                 return;
             }
 
-            //Get current device GPS coordinates
-            const currentLocation = await Location.getCurrentPositionAsync({
-                accuracy: Location.Accuracy.High,
-            });
+            subscriptionRef.current?.remove();
 
-            const { latitude, longitude } = currentLocation.coords;
-
-            //Calculate distance between user and facility using Haversine formula
-            const calculatedDistance = getDistanceInMeters(
-                latitude,
-                longitude,
-                FACILITY.latitude,
-                FACILITY.longitude,
+            //Continuously watch the device's GPS coordinates
+            subscriptionRef.current = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.High,
+                    timeInterval: 5000,   
+                    distanceInterval: 10, 
+                },
+                (currentLocation) => {
+                    const { latitude, longitude } = currentLocation.coords;
+                    evaluateDistance(latitude, longitude);
+                }
             );
-
-            setDistance(calculatedDistance);
-
-            //Check if user is within the allowed radius
-            if (calculatedDistance <= FACILITY.allowedRadiusMeters) {
-                setStatus("inside");
-            } else {
-                setStatus("outside");
-            }
         } catch (error) {
             setStatus("unavailable");
             setErrorMessage("Unable to determine your location\nMake sure the location service is enabled");
         }
     };
 
-    //Run location check when the hook mounts
+    //Start watching when the hook mounts
     useEffect(() => {
-        checkUserLocation();
+        startWatching();
+
+        return () => {
+            subscriptionRef.current?.remove();
+        };
     }, []);
 
     return {
         status,
         distance,
         errorMessage,
-        refetchLocation: checkUserLocation,
+        refetchLocation: startWatching,
     };
 }
