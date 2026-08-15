@@ -7,8 +7,8 @@ import { AttendanceCard } from "../features/attendance/components/AttendanceCard
 import { CheckInButton } from "../features/attendance/components/CheckInButton";
 import { useLocation } from "../features/location/hooks/useLocation";
 
-// موعد الدوام الرسمي — نستخدمه لاحقًا لحساب التأخير
-const OFFICIAL_START_HOUR = 9; // 9:00 AM
+const OFFICIAL_START_HOUR = 9;
+const OFFICIAL_START_MINUTE = 0;
 
 export default function HomeScreen() {
   const { distance, status: locationStatus, errorMessage } = useLocation();
@@ -17,11 +17,16 @@ const [attendanceState, setAttendanceState] = useState<
   "not-checked-in" | "checked-in" | "checked-out"
 >("not-checked-in");
 
-  // الوقت الحقيقي لضغطة check-in/out (Date object، مو نص)
   const [checkInDate, setCheckInDate] = useState<Date | null>(null);
   const [checkOutDate, setCheckOutDate] = useState<Date | null>(null);
+  const [isLate, setIsLate] = useState(false);
 
-  // الساعة الحية المعروضة أعلى الشاشة (تتحدث كل دقيقة)
+  const checkIfLate = (date: Date) => {
+  const officialStart = new Date(date);
+  officialStart.setHours(OFFICIAL_START_HOUR, OFFICIAL_START_MINUTE, 0, 0);
+  return date.getTime() > officialStart.getTime();
+};
+
   const [now, setNow] = useState(new Date());
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 60 * 1000);
@@ -37,7 +42,9 @@ const [attendanceState, setAttendanceState] = useState<
     if (!isInside) return;
 
     if (attendanceState === "not-checked-in") {
-      setCheckInDate(new Date());
+      const checkInMoment = new Date();
+      setCheckInDate(checkInMoment);
+      setIsLate(checkIfLate(checkInMoment));
       setAttendanceState("checked-in");
     } else if (attendanceState === "checked-in") {
       Alert.alert(
@@ -71,6 +78,7 @@ const [attendanceState, setAttendanceState] = useState<
         currentDate={now}
         checkInTime={checkInDate ? formatTime(checkInDate) : ""}
         checkOutTime={checkOutDate ? formatTime(checkOutDate) : ""}
+        isLate={isLate}
       />
 
       <AttendanceCard
@@ -83,6 +91,7 @@ const [attendanceState, setAttendanceState] = useState<
         label={buttonLabel}
         isDisabled={isButtonDisabled}
         attendanceState={attendanceState}
+        isLate={isLate}
         onPress={handleAttendanceAction}
       />
     </View>

@@ -10,6 +10,7 @@ interface CheckInButtonProps {
     onPress?: () => void;
     label?: string;
     attendanceState?: "not-checked-in" | "checked-in" | "checked-out";
+    isLate?: boolean;
 }
 
 export const CheckInButton = ({
@@ -17,6 +18,7 @@ export const CheckInButton = ({
     onPress,
     label = "Check In",
     attendanceState = "not-checked-in",
+    isLate = false
 }: CheckInButtonProps) => {
 
     const getButtonStyle = () => {

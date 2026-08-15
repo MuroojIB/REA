@@ -9,6 +9,7 @@ interface AttendanceStatusProps {
     checkInTime?: string;
     checkOutTime?: string;
     currentDate?: Date;
+    isLate?: boolean;
 }
 
 export const AttendanceStatus = ({ 
@@ -16,21 +17,22 @@ export const AttendanceStatus = ({
     checkInTime = "", 
     checkOutTime = "",
     currentDate = new Date(),
+    isLate = false,
 }: AttendanceStatusProps) => {
 
-    // مثال: THU, AUG 13
     const dateLabel = currentDate
         .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "2-digit" })
         .toUpperCase();
 
-    // نفصل الوقت عن AM/PM عشان نطبّق نفس التصميم القديم (رقم كبير + AM/PM صغير)
     const timeLabel = currentDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
     const [timeValue, amPmValue] = timeLabel.split(" ");
 
     const getStatusDetails = () => {
         switch (attendanceState) {
             case "checked-in":
-                return { text: `Checked in at ${checkInTime}`, dotColor: "#34a853" };
+                return isLate
+                    ? { text: `Checked in late at ${checkInTime}`, dotColor: "#f9a825" }
+                    : { text: `Checked in at ${checkInTime}`, dotColor: "#34a853" };
             case "checked-out":
                 return { text: `Checked out at ${checkOutTime}`, dotColor: "#ea4335" };
             default:
@@ -49,9 +51,17 @@ export const AttendanceStatus = ({
                 <Text style={styles.amPm}> {amPmValue}</Text>
             </View>
             
-            <View style={styles.statusBadge}>
-                <View style={[styles.dot, { backgroundColor: statusInfo.dotColor }]} />
-                <Text style={styles.statusBadgeText}>{statusInfo.text}</Text>
+            <View style={styles.statusRow}>
+                <View style={styles.statusBadge}>
+                    <View style={[styles.dot, { backgroundColor: statusInfo.dotColor }]} />
+                    <Text style={styles.statusBadgeText}>{statusInfo.text}</Text>
+                </View>
+
+                {isLate && attendanceState === "checked-in" && (
+                    <View style={styles.lateTag}>
+                        <Text style={styles.lateTagText}>Late</Text>
+                    </View>
+                )}
             </View>
         </View>
     );
@@ -92,6 +102,10 @@ const styles = StyleSheet.create({
         color: colors.text.secondary,
         marginLeft: 4,
     },
+    statusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -99,6 +113,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
         borderRadius: spacing.xl,
+    },
+    lateTag: {
+        backgroundColor: "#fef3e0",
+        paddingHorizontal: spacing.sm + 2,
+        paddingVertical: spacing.sm,
+        borderRadius: spacing.xl,
+        marginLeft: spacing.xs + 2,
+    },
+    lateTagText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.weights.bold as any,
+        color: "#b06000",
     },
     dot: {
         width: 8,
