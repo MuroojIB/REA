@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert } from "react-native";
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useRequests } from "../../features/requests/hooks/useRequests";
@@ -28,7 +28,6 @@ export default function NewRequestScreen() {
         }
     };
 
-    // دالة موحدة للأيقونات لضمان التطابق التام مع القائمة الخارجية (RequestCard)
     const getIconByType = (reqType: RequestType) => {
         switch (reqType) {
             case "late-arrival": return "time-outline";
@@ -38,14 +37,34 @@ export default function NewRequestScreen() {
         }
     };
 
-    // يسمح بالأرقام والشرطة فقط (لصيغة YYYY-MM-DD)
+    // دالة التأكيد عند الإلغاء أو العودة في حال وجود بيانات
+    const handleCancel = () => {
+        const hasUnsavedChanges = Boolean(date.trim() || startTime.trim() || endTime.trim() || reason.trim());
+
+        if (hasUnsavedChanges) {
+            Alert.alert(
+                "Discard Changes?",
+                "You have unsaved changes\nAre you sure you want to discard them?",
+                [
+                    { text: "Keep Editing", style: "cancel" },
+                    { 
+                        text: "Discard", 
+                        style: "destructive", 
+                        onPress: () => router.push("/requests") 
+                    },
+                ]
+            );
+        } else {
+            router.push("/requests");
+        }
+    };
+
     const handleDateChange = (text: string) => {
         const filtered = text.replace(/[^0-9-]/g, "");
         setDate(filtered);
         if (error) setError(null);
     };
 
-    // يسمح بالأرقام والنقطتين فقط (لصيغة HH:MM)
     const handleStartTimeChange = (text: string) => {
         const filtered = text.replace(/[^0-9:]/g, "");
         setStartTime(filtered);
@@ -80,7 +99,6 @@ export default function NewRequestScreen() {
             addRequest(newRequest);
             setIsSubmitting(false);
 
-            // تفريغ الحقول بعد الإرسال
             setDate("");
             setStartTime("");
             setEndTime("");
@@ -101,7 +119,7 @@ export default function NewRequestScreen() {
                     headerStyle: { backgroundColor: "#f4f7f8" },
                     headerLeft: () => (
                         <TouchableOpacity
-                            onPress={() => router.push("/requests")}
+                            onPress={handleCancel}
                             style={{ marginLeft: 16, padding: 4 }}
                         >
                             <Ionicons name="arrow-back" size={24} color="#333" />
@@ -116,7 +134,6 @@ export default function NewRequestScreen() {
                         Please provide the details for your excuse request below
                     </Text>
 
-                    {/* 1. Request Type مع التصميم المميز والأيقونات الموحدة */}
                     <Text style={styles.label}>Request Type</Text>
                     <View style={styles.radioGroup}>
                         {[
@@ -153,7 +170,6 @@ export default function NewRequestScreen() {
                         })}
                     </View>
 
-                    {/* 2. Date (أرقام وشرطة فقط عبر فلترة النص + لوحة المفاتيح الرقمية) */}
                     <Text style={styles.label}>Date</Text>
                     <View style={styles.inputWrapper}>
                         <Ionicons name="calendar-outline" size={20} color="#666" style={styles.inputIcon} />
@@ -168,7 +184,6 @@ export default function NewRequestScreen() {
                         />
                     </View>
 
-                    {/* 3. Start & End Time (أرقام ونقطتين فقط عبر فلترة النص) */}
                     <View style={styles.row}>
                         <View style={styles.halfColumn}>
                             <Text style={styles.label}>Start Time</Text>
@@ -203,7 +218,6 @@ export default function NewRequestScreen() {
                         </View>
                     </View>
 
-                    {/* 4. Reason */}
                     <Text style={styles.label}>Reason</Text>
                     <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
                         <TextInput
@@ -220,10 +234,8 @@ export default function NewRequestScreen() {
                         />
                     </View>
 
-                    {/* Error Message */}
                     {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-                    {/* 5. Buttons */}
                     <TouchableOpacity
                         style={[styles.submitButton, isSubmitting && styles.disabledButton]}
                         onPress={handleSubmit}
@@ -241,7 +253,7 @@ export default function NewRequestScreen() {
 
                     <TouchableOpacity
                         style={styles.cancelButton}
-                        onPress={() => router.push("/requests")}
+                        onPress={handleCancel}
                         disabled={isSubmitting}
                     >
                         <Text style={styles.cancelButtonText}>Cancel</Text>
