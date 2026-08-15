@@ -7,16 +7,24 @@ import { typography } from "../../../theme/typography";
 
 interface AttendanceCardProps {
     distance?: number;
-    status?: string; // أضفنا حالة الموقع للتحكم بالمحتوى
-    errorMessage?: string; // رسالة الخطأ لو وجدت
+    status?: string;
+    errorMessage?: string;
 }
 
 export const AttendanceCard = ({ distance = 350, status = 'outside', errorMessage }: AttendanceCardProps) => {
     const isInside = status === 'inside';
     const hasError = status === 'unavailable' || status === 'permission-denied';
 
-    // تحديد محتوى النص والأيقونة بناءً على الحالة
     const getCardContent = () => {
+        if (status === 'loading') {
+            return {
+                title: "Detecting Location...",
+                desc: "Calculating your distance to the facility...",
+                icon: "sync-outline" as const,
+                bgStyle: styles.restrictedBg,
+                iconColor: colors.text.secondary
+            };
+        }
         if (hasError) {
             return {
                 title: "Location Unavailable",
