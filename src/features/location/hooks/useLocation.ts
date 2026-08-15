@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import * as Location from "expo-location";
+import { AppState } from "react-native";
 import { FACILITY } from "../../../constants/facility";
 import { getDistanceInMeters } from "../utils/distance";
 
@@ -28,7 +29,6 @@ export function useLocation() {
 
         setDistance(calculatedDistance);
 
-        //Check if user is within the allowed radius
         setStatus(
             calculatedDistance <= FACILITY.allowedRadiusMeters ? "inside" : "outside"
         );
@@ -68,12 +68,32 @@ export function useLocation() {
         }
     };
 
+    const revalidatePermission = async () => {
+        const { status: permissionStatus } =
+            await Location.getForegroundPermissionsAsync();
+
+        if (permissionStatus !== "granted") {
+            subscriptionRef.current?.remove();
+            setStatus("permission-denied");
+            setErrorMessage("Location access was turned off. Please re-enable it in settings.");
+        } else {
+            startWatching();
+        }
+    };
+
     //Start watching when the hook mounts
     useEffect(() => {
         startWatching();
 
+        const appStateSubscription = AppState.addEventListener("change", (nextState) => {
+            if (nextState === "active") {
+                revalidatePermission();
+            }
+        });
+
         return () => {
             subscriptionRef.current?.remove();
+            appStateSubscription.remove();
         };
     }, []);
 
