@@ -71,6 +71,19 @@ const [attendanceState, setAttendanceState] = useState<
       attendanceState === "checked-out" ? "Completed" :
       "Check In";
 
+  const formatWorkedHours = (checkIn: Date, checkOut: Date) => {
+  const diffMs = checkOut.getTime() - checkIn.getTime();
+  const totalMinutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${minutes}m`;
+  };
+
+  const workedHours =
+  checkInDate && checkOutDate
+    ? formatWorkedHours(checkInDate, checkOutDate)
+    : null;
+
   return (
     <View style={styles.container}>
       <AttendanceStatus
@@ -79,6 +92,7 @@ const [attendanceState, setAttendanceState] = useState<
         checkInTime={checkInDate ? formatTime(checkInDate) : ""}
         checkOutTime={checkOutDate ? formatTime(checkOutDate) : ""}
         isLate={isLate}
+        workedHours={workedHours}
       />
 
       <AttendanceCard

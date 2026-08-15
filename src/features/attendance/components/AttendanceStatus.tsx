@@ -10,6 +10,7 @@ interface AttendanceStatusProps {
     checkOutTime?: string;
     currentDate?: Date;
     isLate?: boolean;
+    workedHours?: string | null;
 }
 
 export const AttendanceStatus = ({ 
@@ -18,6 +19,7 @@ export const AttendanceStatus = ({
     checkOutTime = "",
     currentDate = new Date(),
     isLate = false,
+    workedHours = null,
 }: AttendanceStatusProps) => {
 
     const dateLabel = currentDate
@@ -63,6 +65,12 @@ export const AttendanceStatus = ({
                     </View>
                 )}
             </View>
+
+            {attendanceState === "checked-out" && workedHours && (
+                <Text style={styles.workedHoursText}>
+                    Total worked hours: {workedHours}
+                </Text>
+            )}
         </View>
     );
 };
@@ -125,6 +133,12 @@ const styles = StyleSheet.create({
         fontSize: typography.sizes.sm,
         fontWeight: typography.weights.bold as any,
         color: "#b06000",
+    },
+    workedHoursText: {
+        fontSize: typography.sizes.sm,
+        color: colors.text.secondary,
+        marginTop: spacing.sm,
+        fontWeight: typography.weights.medium as any,
     },
     dot: {
         width: 8,
