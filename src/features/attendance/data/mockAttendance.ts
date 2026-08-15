@@ -8,6 +8,8 @@ export interface AttendanceRecord {
     status: 'Present' | 'Late' | 'Absent' | 'Excused';
 }
 
+export const ATTENDANCE_MONTHS = ['May', 'June', 'July', 'August'];
+
 export const MOCK_ATTENDANCE_RECORDS: AttendanceRecord[] = [
     { id: 'june-1', monthKey: 'June', monthDisplay: 'June 2025', date: 'Sat, 10 Jun', checkInTime: '08:00 AM', checkOutTime: '05:00 PM', status: 'Present' },
     { id: 'june-2', monthKey: 'June', monthDisplay: 'June 2025', date: 'Sun, 11 Jun', checkInTime: '09:10 AM', checkOutTime: '05:00 PM', status: 'Late' },
