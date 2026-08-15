@@ -1,0 +1,34 @@
+import { ExcuseRequest } from "../types";
+
+export const MOCK_REQUESTS: ExcuseRequest[] = [
+    {
+        id: "1",
+        type: "late-arrival",
+        title: "Late Arrival",
+        date: "Nov 15, 2023",
+        timeRange: "08:00 AM - 09:30 AM",
+        reason: "Attending a family wedding out of state. Will be unavailable via phone or email during this time.",
+        status: "pending",
+        createdAt: "2023-11-14T10:00:00Z",
+    },
+    {
+        id: "2",
+        type: "early-leave",
+        title: "Early Leave",
+        date: "Oct 10, 2023",
+        timeRange: "03:00 PM - 05:00 PM",
+        reason: "Medical appointment in the afternoon.",
+        status: "approved",
+        createdAt: "2023-10-09T10:00:00Z",
+    },
+    {
+        id: "3",
+        type: "full-day",
+        title: "Time off during the day",
+        date: "Sep 05, 2023",
+        timeRange: "11:00 AM - 12:30 PM",
+        reason: "Personal emergency.",
+        status: "rejected",
+        createdAt: "2023-09-04T16:00:00Z",
+    },
+];
