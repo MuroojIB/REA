@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { MOCK_ATTENDANCE_RECORDS, AttendanceRecord } from "../../features/attendance/data/mockAttendance";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
@@ -42,7 +43,7 @@ export default function AttendanceLogScreen() {
         }
     };
 
-const renderItem = ({ item }: { item: AttendanceRecord }) => {
+    const renderItem = ({ item }: { item: AttendanceRecord }) => {
         const style = getStatusStyle(item.status);
 
         return (
@@ -78,48 +79,73 @@ const renderItem = ({ item }: { item: AttendanceRecord }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <TouchableOpacity onPress={handlePrevMonth} disabled={currentMonthIndex === 0}>
-                    <Ionicons name="chevron-back" size={18} color={currentMonthIndex === 0 ? colors.border : colors.text.primary} />
-                </TouchableOpacity>
-                
-                <Text style={styles.monthTitle}>
-                    {filteredData[0]?.monthDisplay || `${activeMonthKey} 2023`}
-                </Text>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <View style={styles.container}>
+                <View style={styles.headerContainer}>
+                        <Text style={styles.pageTitle}>Attendance Log</Text>
+                </View>
 
-                <TouchableOpacity onPress={handleNextMonth} disabled={currentMonthIndex === months.length - 1}>
-                    <Ionicons name="chevron-forward" size={18} color={currentMonthIndex === months.length - 1 ? colors.border : colors.text.primary} />
-                </TouchableOpacity>
+                <View style={styles.headerMonthContainer}>
+                    <TouchableOpacity onPress={handlePrevMonth} disabled={currentMonthIndex === 0}>
+                        <Ionicons name="chevron-back" size={18} color={currentMonthIndex === 0 ? colors.border : colors.text.primary} />
+                    </TouchableOpacity>
+                    
+                    <Text style={styles.monthTitle}>
+                        {filteredData[0]?.monthDisplay || `${activeMonthKey} 2023`}
+                    </Text>
+
+                    <TouchableOpacity onPress={handleNextMonth} disabled={currentMonthIndex === months.length - 1}>
+                        <Ionicons name="chevron-forward" size={18} color={currentMonthIndex === months.length - 1 ? colors.border : colors.text.primary} />
+                    </TouchableOpacity>
+                </View>
+
+                <FlatList
+                    data={filteredData}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderItem}
+                    contentContainerStyle={{ paddingBottom: spacing.lg }}
+                />
             </View>
-
-            <FlatList
-                data={filteredData}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={{ paddingBottom: spacing.lg }}
-            />
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
     container: { 
         flex: 1, 
-        padding: spacing.lg, 
+        paddingHorizontal: spacing.lg, 
         backgroundColor: colors.background 
     },
     headerContainer: {
-        backgroundColor: colors.border,
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: spacing.xs,
+        marginBottom: spacing.md,
+        justifyContent: 'center',
+    },
+    pageTitle: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: colors.primary,
+        marginTop: 1,
+    },
+    headerMonthContainer: {
+        backgroundColor: colors.surface,
         borderRadius: spacing.sm,
         padding: spacing.md,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: spacing.md,
+        borderWidth: 1,
+        borderColor: colors.border,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.05,
         shadowRadius: 3,
         elevation: 1,
     },
