@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MOCK_ATTENDANCE_RECORDS, AttendanceRecord } from "../../features/attendance/data/mockAttendance";
+import { EmptyState } from "../../components/EmptyState";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function AttendanceLogScreen() {
-    const months = ["June", "July", "August"];
+    const months = ["May", "June", "July", "August"];
     const [currentMonthIndex, setCurrentMonthIndex] = useState(1);
     const activeMonthKey = months[currentMonthIndex];
 
@@ -82,7 +83,7 @@ export default function AttendanceLogScreen() {
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
-                        <Text style={styles.pageTitle}>Attendance Log</Text>
+                    <Text style={styles.pageTitle}>Attendance Log</Text>
                 </View>
 
                 <View style={styles.headerMonthContainer}>
@@ -91,7 +92,7 @@ export default function AttendanceLogScreen() {
                     </TouchableOpacity>
                     
                     <Text style={styles.monthTitle}>
-                        {filteredData[0]?.monthDisplay || `${activeMonthKey} 2023`}
+                        {filteredData[0]?.monthDisplay || `${activeMonthKey} 2025`}
                     </Text>
 
                     <TouchableOpacity onPress={handleNextMonth} disabled={currentMonthIndex === months.length - 1}>
@@ -103,7 +104,14 @@ export default function AttendanceLogScreen() {
                     data={filteredData}
                     keyExtractor={(item) => item.id}
                     renderItem={renderItem}
-                    contentContainerStyle={{ paddingBottom: spacing.lg }}
+                    contentContainerStyle={{ paddingBottom: 100 }}
+                    ListEmptyComponent={
+                        <EmptyState
+                            icon="calendar-outline"
+                            title="No Attendance Records"
+                            description={`There are no attendance records found for ${activeMonthKey}`}
+                        />
+                    }
                 />
             </View>
         </SafeAreaView>
