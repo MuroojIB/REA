@@ -8,14 +8,25 @@ interface AttendanceStatusProps {
     attendanceState?: "not-checked-in" | "checked-in" | "checked-out";
     checkInTime?: string;
     checkOutTime?: string;
+    currentDate?: Date;
 }
 
 export const AttendanceStatus = ({ 
     attendanceState = "not-checked-in", 
     checkInTime = "", 
-    checkOutTime = "" 
+    checkOutTime = "",
+    currentDate = new Date(),
 }: AttendanceStatusProps) => {
-    
+
+    // مثال: THU, AUG 13
+    const dateLabel = currentDate
+        .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "2-digit" })
+        .toUpperCase();
+
+    // نفصل الوقت عن AM/PM عشان نطبّق نفس التصميم القديم (رقم كبير + AM/PM صغير)
+    const timeLabel = currentDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+    const [timeValue, amPmValue] = timeLabel.split(" ");
+
     const getStatusDetails = () => {
         switch (attendanceState) {
             case "checked-in":
@@ -31,11 +42,11 @@ export const AttendanceStatus = ({
 
     return (
         <View style={styles.timeContainer}>
-            <Text style={styles.dateText}>THU, AUG 13, 2026</Text>
+            <Text style={styles.dateText}>{dateLabel}</Text>
             
             <View style={styles.timeRow}>
-                <Text style={styles.timeDisplay}>12:41</Text>
-                <Text style={styles.amPm}> AM</Text>
+                <Text style={styles.timeDisplay}>{timeValue}</Text>
+                <Text style={styles.amPm}> {amPmValue}</Text>
             </View>
             
             <View style={styles.statusBadge}>

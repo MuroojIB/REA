@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Alert } from "react-native";
 import { colors } from "../theme/colors";
 import { spacing } from "../theme/spacing";
 import { AttendanceStatus } from "../features/attendance/components/AttendanceStatus";
@@ -7,41 +7,70 @@ import { AttendanceCard } from "../features/attendance/components/AttendanceCard
 import { CheckInButton } from "../features/attendance/components/CheckInButton";
 import { useLocation } from "../features/location/hooks/useLocation";
 
+// موعد الدوام الرسمي — نستخدمه لاحقًا لحساب التأخير
+const OFFICIAL_START_HOUR = 9; // 9:00 AM
+
 export default function HomeScreen() {
   const { distance, status: locationStatus, errorMessage } = useLocation();
 
-  const [attendanceState, setAttendanceState] = useState<
-    "not-checked-in" | "checked-in" | "checked-out"
-  >("not-checked-in");
+const [attendanceState, setAttendanceState] = useState<
+  "not-checked-in" | "checked-in" | "checked-out"
+>("not-checked-in");
 
-  // Mock times for check-in and check-out
-  const [checkInTime, setCheckInTime] = useState<string>("09:02 AM");
-  const [checkOutTime, setCheckOutTime] = useState<string>("05:11 PM");
+  // الوقت الحقيقي لضغطة check-in/out (Date object، مو نص)
+  const [checkInDate, setCheckInDate] = useState<Date | null>(null);
+  const [checkOutDate, setCheckOutDate] = useState<Date | null>(null);
+
+  // الساعة الحية المعروضة أعلى الشاشة (تتحدث كل دقيقة)
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const isInside = locationStatus === "inside";
+
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   const handleAttendanceAction = () => {
     if (!isInside) return;
 
     if (attendanceState === "not-checked-in") {
+      setCheckInDate(new Date());
       setAttendanceState("checked-in");
-      console.log("Checked In");
     } else if (attendanceState === "checked-in") {
-      setAttendanceState("checked-out");
-      console.log("Checked Out");
+      Alert.alert(
+        "Confirm Check-Out",
+        "Are you sure you want to check out now?",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Check Out",
+            style: "destructive",
+            onPress: () => {
+              setCheckOutDate(new Date());
+              setAttendanceState("checked-out");
+            },
+          },
+        ]
+      );
     }
   };
 
   const isButtonDisabled = !isInside || attendanceState === "checked-out";
   const buttonLabel =
-    attendanceState === "checked-in" ? "Check Out" : "Check In";
+      attendanceState === "checked-in" ? "Check Out" :
+      attendanceState === "checked-out" ? "Completed" :
+      "Check In";
 
   return (
     <View style={styles.container}>
       <AttendanceStatus
         attendanceState={attendanceState}
-        checkInTime={checkInTime}
-        checkOutTime={checkOutTime}
+        currentDate={now}
+        checkInTime={checkInDate ? formatTime(checkInDate) : ""}
+        checkOutTime={checkOutDate ? formatTime(checkOutDate) : ""}
       />
 
       <AttendanceCard
@@ -53,6 +82,7 @@ export default function HomeScreen() {
       <CheckInButton
         label={buttonLabel}
         isDisabled={isButtonDisabled}
+        attendanceState={attendanceState}
         onPress={handleAttendanceAction}
       />
     </View>
