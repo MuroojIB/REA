@@ -119,22 +119,17 @@ To test the geofenced check-in logic (inside vs. outside the 200m zone), you can
 
 ## 📸 Screenshots & Media Showcase
 
-_Add app screenshots and recordings inside the placeholder assets directory to finalize your submission:_
-
-|                                       Home (Inside Zone)                                       |                                            Home (Outside Zone)                                             |
-| :--------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
+| Home (Inside Zone) | Home (Outside Zone) |
+| :---: | :---: |
 | <img src="./assets/screenshots/home_inside.png" width="300" alt="Home - Inside Allowed Zone"/> | <img src="./assets/screenshots/home_outside.png" width="300" alt="Home - Outside Zone Proximity Warning"/> |
 
-|                                        Attendance Log                                        |                                   Excuse Request List                                    |                                        New Request Form                                         |
-| :------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------: |
-| <img src="./assets/screenshots/attendance_log.png" width="220" alt="Attendance Log Screen"/> | <img src="./assets/screenshots/requests_list.png" width="220" alt="My Requests Screen"/> | <img src="./assets/screenshots/new_request_form.png" width="220" alt="New Excuse Form Screen"/> |
+| Attendance Log | Excuse Request List | New Request Form |
+| :---: | :---: | :---: |
+| <img src="./assets/screenshots/new_request_form.png" width="220" alt="Attendance Log Screen"/> | <img src="./assets/screenshots/attendance_log.png" width="220" alt="My Requests Screen"/> | <img src="./assets/screenshots/requests_list.png" width="220" alt="New Excuse Form Screen"/> |
 
 ### 🎥 Demo Walkthrough (Screen Recording)
 
-> Place your screen recording or GIF showing inside/outside zone check-in/out mechanics here:
->
->
-> `![Demo Walkthrough](./assets/screenshots/walkthrough.gif)`
+![Demo Walkthrough](./assets/screenshots/walkthrough.gif)
 
 ---
 
