@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { View, FlatList, StyleSheet, TouchableOpacity, Text, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { RequestCard } from "../../features/requests/components/RequestCard";
 import { useRequests } from "../../features/requests/hooks/useRequests";
 import { RequestStatus } from "../../features/requests/types";
 import { colors } from "../../theme/colors";
 import { spacing } from "../../theme/spacing";
 import { typography } from "../../theme/typography";
+import { EmptyState } from "../../components/EmptyState";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function RequestsScreen() {
@@ -33,55 +35,111 @@ export default function RequestsScreen() {
     ];
 
     return (
-        <View style={styles.container}>
-            <View style={styles.filterWrapper}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContainer}>
-                    {filterOptions.map((option) => {
-                        const isSelected = selectedFilter === option.value;
-                        return (
-                            <TouchableOpacity
-                                key={option.value}
-                                style={[styles.chip, isSelected && styles.activeChip]}
-                                onPress={() => setSelectedFilter(option.value)}
-                            >
-                                <Text style={[styles.chipText, isSelected && styles.activeChipText]}>
-                                    {option.label}
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </ScrollView>
+        <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <View style={styles.container}>
+                <View style={styles.headerContainer}>
+                    <View style={styles.avatarContainer}>
+                        <Text style={styles.avatarEmoji}>📋</Text>
+                    </View>
+                    <View style={styles.headerTextContainer}>
+                        <Text style={styles.greetingSub}>OVERVIEW</Text>
+                        <Text style={styles.pageTitle}>My Requests</Text>
+                    </View>
+                </View>
+
+                <View style={styles.filterWrapper}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterContainer}>
+                        {filterOptions.map((option) => {
+                            const isSelected = selectedFilter === option.value;
+                            return (
+                                <TouchableOpacity
+                                    key={option.value}
+                                    style={[styles.chip, isSelected && styles.activeChip]}
+                                    onPress={() => setSelectedFilter(option.value)}
+                                >
+                                    <Text style={[styles.chipText, isSelected && styles.activeChipText]}>
+                                        {option.label}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+
+                <FlatList
+                    data={filteredRequests}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                        <RequestCard 
+                            request={item} 
+                            isExpanded={expandedId === item.id}
+                            onPress={() => handleToggleExpand(item.id)}
+                        />
+                    )}
+                    contentContainerStyle={styles.listContent}
+                    ListEmptyComponent={
+                        <EmptyState
+                            icon="document-text-outline"
+                            title="No Requests Found"
+                            description={
+                                selectedFilter === "all"
+                                    ? "You haven't submitted any excuse requests yet"
+                                    : `There are no ${selectedFilter} requests available`
+                            }
+                        />
+                    }
+                />
+
+                <TouchableOpacity style={styles.fab} onPress={() => router.push("/requests/new")}>
+                    <Ionicons name="add" size={28} color={colors.surface} />
+                </TouchableOpacity>
             </View>
-
-            <FlatList
-                data={filteredRequests}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <RequestCard 
-                        request={item} 
-                        // 3️⃣ تمرير حالة الفتح والإغلاق ودالة الضغط للكارت
-                        isExpanded={expandedId === item.id}
-                        onPress={() => handleToggleExpand(item.id)}
-                    />
-                )}
-                contentContainerStyle={styles.listContent}
-                ListEmptyComponent={
-                    <Text style={styles.emptyText}>No {selectedFilter !== "all" ? selectedFilter : ""} requests found.</Text>
-                }
-            />
-
-            <TouchableOpacity style={styles.fab} onPress={() => router.push("/requests/new")}>
-                <Ionicons name="add" size={28} color={colors.surface} />
-            </TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: colors.background,
+    },
     container: { 
         flex: 1, 
-        padding: spacing.sm, 
+        paddingHorizontal: spacing.sm, 
         backgroundColor: colors.background 
+    },
+    headerContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: spacing.md,
+        marginTop: spacing.xs,
+        marginBottom: spacing.xs,
+    },
+    avatarContainer: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: "#E2ECE9",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    avatarEmoji: {
+        fontSize: 22,
+    },
+    headerTextContainer: {
+        marginLeft: spacing.md,
+    },
+    greetingSub: {
+        fontSize: 11,
+        fontWeight: "700",
+        color: colors.text.secondary,
+        letterSpacing: 0.8,
+    },
+    pageTitle: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: colors.primary,
+        marginTop: 1,
     },
     filterWrapper: {
         paddingVertical: spacing.md,
@@ -99,8 +157,8 @@ const styles = StyleSheet.create({
         borderColor: "#e0e0e0",
     },
     activeChip: {
-        backgroundColor: "#0d3b36",
-        borderColor: "#0d3b36",
+        backgroundColor: colors.primary,
+        borderColor: colors.primary,
     },
     chipText: {
         fontSize: typography.sizes.sm,
