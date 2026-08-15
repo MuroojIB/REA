@@ -8,18 +8,33 @@ interface AttendanceStatusProps {
     attendanceState?: "not-checked-in" | "checked-in" | "checked-out";
     checkInTime?: string;
     checkOutTime?: string;
+    currentDate?: Date;
+    isLate?: boolean;
+    workedHours?: string | null;
 }
 
 export const AttendanceStatus = ({ 
     attendanceState = "not-checked-in", 
     checkInTime = "", 
-    checkOutTime = "" 
+    checkOutTime = "",
+    currentDate = new Date(),
+    isLate = false,
+    workedHours = null,
 }: AttendanceStatusProps) => {
-    
+
+    const dateLabel = currentDate
+        .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "2-digit" })
+        .toUpperCase();
+
+    const timeLabel = currentDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
+    const [timeValue, amPmValue] = timeLabel.split(" ");
+
     const getStatusDetails = () => {
         switch (attendanceState) {
             case "checked-in":
-                return { text: `Checked in at ${checkInTime}`, dotColor: "#34a853" };
+                return isLate
+                    ? { text: `Checked in late at ${checkInTime}`, dotColor: "#f9a825" }
+                    : { text: `Checked in at ${checkInTime}`, dotColor: "#34a853" };
             case "checked-out":
                 return { text: `Checked out at ${checkOutTime}`, dotColor: "#ea4335" };
             default:
@@ -31,17 +46,31 @@ export const AttendanceStatus = ({
 
     return (
         <View style={styles.timeContainer}>
-            <Text style={styles.dateText}>THU, AUG 13, 2026</Text>
+            <Text style={styles.dateText}>{dateLabel}</Text>
             
             <View style={styles.timeRow}>
-                <Text style={styles.timeDisplay}>12:41</Text>
-                <Text style={styles.amPm}> AM</Text>
+                <Text style={styles.timeDisplay}>{timeValue}</Text>
+                <Text style={styles.amPm}> {amPmValue}</Text>
             </View>
             
-            <View style={styles.statusBadge}>
-                <View style={[styles.dot, { backgroundColor: statusInfo.dotColor }]} />
-                <Text style={styles.statusBadgeText}>{statusInfo.text}</Text>
+            <View style={styles.statusRow}>
+                <View style={styles.statusBadge}>
+                    <View style={[styles.dot, { backgroundColor: statusInfo.dotColor }]} />
+                    <Text style={styles.statusBadgeText}>{statusInfo.text}</Text>
+                </View>
+
+                {isLate && attendanceState === "checked-in" && (
+                    <View style={styles.lateTag}>
+                        <Text style={styles.lateTagText}>Late</Text>
+                    </View>
+                )}
             </View>
+
+            {attendanceState === "checked-out" && workedHours && (
+                <Text style={styles.workedHoursText}>
+                    Total worked hours: {workedHours}
+                </Text>
+            )}
         </View>
     );
 };
@@ -81,6 +110,10 @@ const styles = StyleSheet.create({
         color: colors.text.secondary,
         marginLeft: 4,
     },
+    statusRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -88,6 +121,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.md,
         paddingVertical: spacing.sm,
         borderRadius: spacing.xl,
+    },
+    lateTag: {
+        backgroundColor: "#fef3e0",
+        paddingHorizontal: spacing.sm + 2,
+        paddingVertical: spacing.sm,
+        borderRadius: spacing.xl,
+        marginLeft: spacing.xs + 2,
+    },
+    lateTagText: {
+        fontSize: typography.sizes.sm,
+        fontWeight: typography.weights.bold as any,
+        color: "#b06000",
+    },
+    workedHoursText: {
+        fontSize: typography.sizes.sm,
+        color: colors.text.secondary,
+        marginTop: spacing.sm,
+        fontWeight: typography.weights.medium as any,
     },
     dot: {
         width: 8,
