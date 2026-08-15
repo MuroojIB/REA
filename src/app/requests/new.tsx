@@ -36,8 +36,7 @@ export default function NewRequestScreen() {
             default: return "document-text-outline";
         }
     };
-
-    // دالة التأكيد عند الإلغاء أو العودة في حال وجود بيانات
+//Confirmation function when canceling or returning if draft data exists
     const handleCancel = () => {
         const hasUnsavedChanges = Boolean(date.trim() || startTime.trim() || endTime.trim() || reason.trim());
 
